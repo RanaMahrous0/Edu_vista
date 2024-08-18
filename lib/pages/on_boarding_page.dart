@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:task6_adv/pages/register.dart';
+import 'package:task6_adv/pages/login_page.dart';
+
+import 'package:task6_adv/services/pref_service.dart';
 import 'package:task6_adv/utility/color_utility.dart';
 import 'package:task6_adv/utility/image_utility.dart';
+import 'package:task6_adv/widgets/my_elevated_button.dart';
 
-import '../widgets/home/onBoarding/on_boarding_item_widget.dart';
+import '../widgets/on_boarding_item_widget.dart';
 
 class OnBoardingPage extends StatefulWidget {
+  static const String id = 'OnBoardingPage';
   const OnBoardingPage({super.key});
 
   @override
@@ -24,16 +28,22 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
   void nextPage() {
     if (currentPage < 3) {
       pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.ease);
+          duration: const Duration(milliseconds: 300), curve: Curves.ease);
     } else {
       Navigator.push(context,
-          MaterialPageRoute(builder: ((context) => const RegisterPage())));
+          MaterialPageRoute(builder: ((context) => const LoginPage())));
     }
   }
 
   void skip() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: ((context) => const RegisterPage())));
+    Navigator.push(
+        context, MaterialPageRoute(builder: ((context) => const LoginPage())));
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -88,32 +98,10 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                   );
                 }),
               ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                        onPressed: currentPage == 0
-                            ? null
-                            : () {
-                                pageController.previousPage(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.ease);
-                              },
-                        color: ColorUtility.secondry,
-                        icon: const Icon(Icons.arrow_back)),
-                    ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            shape: const CircleBorder(),
-                            padding: const EdgeInsets.all(20),
-                            backgroundColor: ColorUtility.secondry,
-                            foregroundColor: Colors.white),
-                        onPressed: nextPage,
-                        child: const Icon(Icons.arrow_forward))
-                  ],
-                ),
+              const SizedBox(
+                height: 10,
               ),
+              getButtons,
               const SizedBox(
                 height: 10,
               )
@@ -122,18 +110,54 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
           Positioned(
               top: 40,
               right: 20,
-              child: GestureDetector(
-                onTap: skip,
-                child: const Text(
-                  'Skip',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                      color: Color(0xff3A3A3A)),
-                ),
-              ))
+              child: currentPage == 3
+                  ? const SizedBox.shrink()
+                  : GestureDetector(
+                      onTap: skip,
+                      child: const Text(
+                        'Skip',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            color: Color(0xff3A3A3A)),
+                      ),
+                    ))
         ],
       ),
     );
   }
+
+  Widget get getButtons => currentPage == 3
+      ? MyElevatedButton(
+          text: 'Login ',
+          onPressed: () {
+            PerferenceService.isOnBoardingSeen = true;
+            Navigator.pushReplacementNamed(context, LoginPage.id);
+          })
+      : Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                  onPressed: currentPage == 0
+                      ? null
+                      : () {
+                          pageController.previousPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.ease);
+                        },
+                  color: ColorUtility.secondry,
+                  icon: const Icon(Icons.arrow_back)),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(20),
+                      backgroundColor: ColorUtility.secondry,
+                      foregroundColor: Colors.white),
+                  onPressed: nextPage,
+                  child: const Icon(Icons.arrow_forward))
+            ],
+          ),
+        );
 }

@@ -19,7 +19,7 @@ class OnBoardingItemWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(width: 300, height: 300, child: Image.asset(image)),
+          SizedBox(width: 300, height: 300, child: Image.asset(image)),
           const SizedBox(
             height: 30,
           ),

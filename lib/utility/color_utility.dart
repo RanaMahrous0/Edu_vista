@@ -6,6 +6,7 @@ class ColorUtility {
   static const main = Color(0xff477B72);
   static const mediumBlack = Color(0xff1D1B20);
   static const scaffoldBackground = Color(0xfffcfcfc);
+    static const grayLight = Color(0xffD1D1D6);
 
 
 }
