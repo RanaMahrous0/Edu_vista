@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:task6_adv/pages/login_page.dart';
 import 'package:task6_adv/pages/reset_password_page.dart';
-import 'package:task6_adv/pages/signUp_page.dart';
+import 'package:task6_adv/pages/signup_page.dart';
 import 'package:task6_adv/utility/color_utility.dart';
 import 'package:task6_adv/widgets/myTextButton.dart';
 import 'package:task6_adv/widgets/my_elevated_button.dart';
@@ -120,12 +120,22 @@ class _AuthTemplateWidgetState extends State<AuthTemplateWidget> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       widget.body,
-                      MyTextButton(
-                          label: 'Forget Password',
-                          onTap: () {
-                            Navigator.pushReplacementNamed(
-                                context, ResetPasswordPage.id);
-                          }),
+                      isLogin
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                MyTextButton(
+                                    label: 'Forget Password',
+                                    onTap: () {
+                                      Navigator.pushReplacementNamed(
+                                          context, ResetPasswordPage.id);
+                                    },),
+                              ],
+                            )
+                          : const SizedBox.shrink(),
                       Row(
                         children: [
                           Expanded(
@@ -158,7 +168,7 @@ class _AuthTemplateWidgetState extends State<AuthTemplateWidget> {
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700),
                                   ),
-                          ))
+                          ),)
                         ],
                       )
                     ],

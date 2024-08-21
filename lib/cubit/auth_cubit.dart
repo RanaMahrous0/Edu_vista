@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:task6_adv/pages/home_page.dart';
-import 'package:task6_adv/pages/login_page.dart';
 
 part 'auth_state.dart';
 
@@ -77,7 +76,7 @@ class AuthCubit extends Cubit<AuthState> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pushReplacementNamed(context, LoginPage.id);
+        Navigator.pushReplacementNamed(context, HomePage.id);
       }
     } on FirebaseAuthException catch (e) {
       if (!context.mounted) return;

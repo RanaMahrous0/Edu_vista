@@ -22,19 +22,25 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       setState(() {
         message = 'Password reset email sent! Check your inbox.';
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      if(mounted){
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(message ?? ''),
         backgroundColor: Colors.green,
       ));
       Navigator.pushReplacementNamed(context, LoginPage.id);
+      }
+     
     } catch (e) {
       setState(() {
         message = 'Failed to send password reset email: $e';
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      if(mounted){
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(message ?? ''),
         backgroundColor: Colors.red,
       ));
+      }
+    
     }
   }
 

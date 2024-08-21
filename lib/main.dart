@@ -7,7 +7,7 @@ import 'package:task6_adv/pages/home_page.dart';
 import 'package:task6_adv/pages/login_page.dart';
 import 'package:task6_adv/pages/on_boarding_page.dart';
 import 'package:task6_adv/pages/reset_password_page.dart';
-import 'package:task6_adv/pages/signUp_page.dart';
+import 'package:task6_adv/pages/signup_page.dart';
 import 'package:task6_adv/pages/start_page.dart';
 import 'package:task6_adv/services/pref_service.dart';
 import 'package:task6_adv/utility/color_utility.dart';
@@ -51,14 +51,18 @@ class MyApp extends StatelessWidget {
           case OnBoardingPage.id:
             return MaterialPageRoute(
                 builder: (context) => const OnBoardingPage());
+
           case HomePage.id:
             return MaterialPageRoute(builder: (context) => const HomePage());
-                    case ResetPasswordPage.id:
-            return MaterialPageRoute(builder: (context) => const ResetPasswordPage());
+          case ResetPasswordPage.id:
+            return MaterialPageRoute(
+                builder: (context) => const ResetPasswordPage());
+
           default:
             return MaterialPageRoute(builder: (context) => const StartPage());
         }
       },
+      // initialRoute: HomePage.id,
     );
   }
 }

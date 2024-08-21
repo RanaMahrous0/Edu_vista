@@ -8,11 +8,14 @@ class MyElevatedButton extends StatelessWidget {
   final Widget? child;
   final double? width;
   final Color? backgroundColor;
+  final Color? foregroundColor;
+
   final String? text;
 
   const MyElevatedButton(
       {required this.onPressed,
       this.backgroundColor,
+      this.foregroundColor,
       this.width,
       this.horizontal,
       this.child,
@@ -33,7 +36,7 @@ class MyElevatedButton extends StatelessWidget {
                       side: const BorderSide(color: ColorUtility.grayLight),
                       borderRadius: BorderRadius.circular(10)),
                   backgroundColor: backgroundColor ?? ColorUtility.secondry,
-                  foregroundColor: Colors.white,
+                  foregroundColor: foregroundColor ?? Colors.white,
                   surfaceTintColor: Colors.white),
               child: text != null
                   ? Text(

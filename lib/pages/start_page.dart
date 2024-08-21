@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:task6_adv/pages/home_page.dart';
 import 'package:task6_adv/pages/login_page.dart';
 import 'package:task6_adv/pages/on_boarding_page.dart';
 import 'package:task6_adv/services/pref_service.dart';
@@ -39,7 +41,11 @@ class _StartPageState extends State<StartPage> {
     await Future.delayed(const Duration(seconds: 1));
     if (mounted) {
       if (PerferenceService.isOnBoardingSeen) {
-        Navigator.pushReplacementNamed(context, LoginPage.id);
+        if (FirebaseAuth.instance.currentUser != null) {
+          Navigator.pushReplacementNamed(context, HomePage.id);
+        } else {
+          Navigator.pushReplacementNamed(context, LoginPage.id);
+        }
       } else {
         Navigator.pushReplacementNamed(context, OnBoardingPage.id);
       }
