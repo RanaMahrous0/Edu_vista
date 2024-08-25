@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task6_adv/bloc/course_bloc.dart';
-import 'package:task6_adv/bloc/course_state.dart';
+import 'package:task6_adv/blocs/course/bloc/course_bloc.dart';
+import 'package:task6_adv/blocs/course/bloc/course_state.dart';
 import 'package:task6_adv/blocs/lecture/bloc/lecture_bloc.dart';
 import 'package:task6_adv/blocs/lecture/bloc/lecture_event.dart';
 import 'package:task6_adv/blocs/lecture/bloc/lecture_state.dart';

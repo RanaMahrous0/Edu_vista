@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task6_adv/bloc/course_state.dart';
+import 'package:task6_adv/blocs/course/bloc/course_state.dart';
 
 import 'package:task6_adv/models/course.dart';
 part 'course_event.dart';
