@@ -1,11 +1,19 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:task6_adv/models/course.dart';
+import 'package:task6_adv/models/lecture.dart';
 import 'package:task6_adv/utility/color_utility.dart';
 import 'package:task6_adv/widgets/lecture_card_widget.dart';
 import 'package:task6_adv/widgets/my_label_text.dart';
 
 class CourseDetailsWidget extends StatefulWidget {
-  final Map<String, dynamic> courseData;
-  const CourseDetailsWidget({required this.courseData, super.key});
+  final Course courseData;
+  final List<Lecture> lectures;
+  const CourseDetailsWidget(
+      {required this.lectures, required this.courseData, super.key});
 
   @override
   State<CourseDetailsWidget> createState() => _CourseDetailsWidgetState();
@@ -13,6 +21,8 @@ class CourseDetailsWidget extends StatefulWidget {
 
 class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
   String selectedButton = 'Lecture';
+  String? selectedLectureId;
+  String? certificateImageUrl;
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -42,12 +52,13 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MyLabelText(fontSize: 20, text: widget.courseData['title']),
+                MyLabelText(
+                    fontSize: 20, text: widget.courseData.title ?? 'no title'),
                 const SizedBox(
                   height: 10,
                 ),
                 Text(
-                  widget.courseData['instructor']['name'],
+                  widget.courseData.instructor!.name ?? 'no name',
                   style: const TextStyle(
                       color: Color(0xff1D1B20),
                       fontSize: 14,
@@ -65,7 +76,7 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
                       const SizedBox(
                         width: 10,
                       ),
-                      elevButton('Download'),
+                      elevButton('Upload'),
                       const SizedBox(
                         width: 10,
                       ),
@@ -83,27 +94,49 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
           const SizedBox(
             height: 17,
           ),
-          selectedButton == 'Lecture'
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 17.0),
-                  child: GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 17,
-                    mainAxisSpacing: 17,
-                    children: List.generate(7, (index) {
-                      return LectureCard(
-                          title: 'Lecture${index + 1}',
-                          description: 'description${index + 1}',
-                          duration: '10',
-                          isFirst: index == 0);
-                    }),
-                  ),
-                )
-              : Center(
-                  child: Text(selectedButton),
-                )
+          if (selectedButton == 'Lecture')
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 17.0),
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 17,
+                  mainAxisSpacing: 17,
+                ),
+                itemCount: widget.lectures.length,
+                itemBuilder: (context, index) {
+                  var lecture = widget.lectures[index];
+                  return LectureCard(
+                    title: lecture.title ?? 'No Title',
+                    description: lecture.description ?? 'No Description',
+                    duration: lecture.duration.toString(),
+                    lectureUrl: lecture.lectureUrl ?? 'No Url',
+                  );
+                },
+              ),
+            )
+          else if (selectedButton == 'Upload')
+            certificateImageUrl == null
+                ? ElevatedButton(
+                    onPressed: () async {
+                      await uploadCertificate();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorUtility.secondry,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Upload Certificate'),
+                  )
+                : Container(
+                    margin: const EdgeInsets.all(16.0),
+                    child: Image.network(certificateImageUrl!),
+                  )
+          else
+            Center(
+              child: Text(selectedButton),
+            )
         ],
       ),
     );
@@ -126,5 +159,47 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
       ),
       child: Text(buttonText),
     );
+  }
+
+  Future<void> uploadCertificate() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      String fileName = result.files.single.name;
+      Reference storageRef =
+          FirebaseStorage.instance.ref().child('certificates/$fileName');
+
+      try {
+        // Upload the file
+        await storageRef.putFile(file);
+        String downloadUrl = await storageRef.getDownloadURL();
+        setState(() {
+          certificateImageUrl = downloadUrl;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Certificate uploaded successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to upload certificate: $e')),
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No certificate selected')),
+        );
+      }
+    }
   }
 }
