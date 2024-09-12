@@ -7,6 +7,7 @@ import 'package:task6_adv/models/lecture.dart';
 class LectureBloc extends Bloc<LectureEvent, LectureState> {
   LectureBloc() : super(LectureInitial()) {
     on<LoadLecturesEvent>(_onLoadLectures);
+    on<SelectLectureEvent>(_onSelectLecture);
   }
 
   Future<void> _onLoadLectures(
@@ -17,6 +18,7 @@ class LectureBloc extends Bloc<LectureEvent, LectureState> {
           .collection('courses')
           .doc(event.courseId)
           .collection('lecture')
+          .orderBy('sort')
           .get();
 
       List<Lecture> lectures = lecturesSnapshot.docs.map((doc) {
@@ -33,5 +35,9 @@ class LectureBloc extends Bloc<LectureEvent, LectureState> {
     } catch (e) {
       emit(LectureError('Failed to fetch lectures: $e'));
     }
+  }
+
+  void _onSelectLecture(SelectLectureEvent event, Emitter<LectureState> emit) {
+    emit(LectureSelected(lecture: event.lecture));
   }
 }

@@ -10,4 +10,13 @@ class Instructor {
     yearsOfExperience = data['years_of_experience'];
     graduatedForm = data['graduated_form'];
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'id': id,
+      'years_of_experience': yearsOfExperience,
+      'graduated_form': graduatedForm
+    };
+  }
 }

@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:task6_adv/pages/login_page.dart';
 import 'package:task6_adv/pages/reset_password_page.dart';
 import 'package:task6_adv/pages/signup_page.dart';
@@ -62,7 +64,9 @@ class _AuthTemplateWidgetState extends State<AuthTemplateWidget> {
               ],
             ),
             MyElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  handleGoogleSignIn();
+                },
                 width: 30,
                 horizontal: 0,
                 child: const FaIcon(FontAwesomeIcons.google)),
@@ -128,47 +132,49 @@ class _AuthTemplateWidgetState extends State<AuthTemplateWidget> {
                                   width: 10,
                                 ),
                                 MyTextButton(
-                                    label: 'Forget Password',
-                                    onTap: () {
-                                      Navigator.pushReplacementNamed(
-                                          context, ResetPasswordPage.id);
-                                    },),
+                                  label: 'Forget Password',
+                                  onTap: () {
+                                    Navigator.pushReplacementNamed(
+                                        context, ResetPasswordPage.id);
+                                  },
+                                ),
                               ],
                             )
                           : const SizedBox.shrink(),
                       Row(
                         children: [
                           Expanded(
-                              child: MyElevatedButton(
-                            onPressed: () async {
-                              if (isLogin) {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                await widget.onLogin?.call();
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              } else {
-                                setState(() {
-                                  isLoading = true;
-                                });
-                                await widget.onSignUp?.call();
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              }
-                            },
-                            horizontal: 0,
-                            child: isLoading
-                                ? const CircularProgressIndicator()
-                                : Text(
-                                    title,
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                          ),)
+                            child: MyElevatedButton(
+                              onPressed: () async {
+                                if (isLogin) {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  await widget.onLogin?.call();
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                } else {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  await widget.onSignUp?.call();
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                }
+                              },
+                              horizontal: 0,
+                              child: isLoading
+                                  ? const CircularProgressIndicator()
+                                  : Text(
+                                      title,
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                            ),
+                          )
                         ],
                       )
                     ],
@@ -178,5 +184,40 @@ class _AuthTemplateWidgetState extends State<AuthTemplateWidget> {
         ],
       ),
     );
+  }
+
+  Future<void> handleGoogleSignIn() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      // Trigger the Google Authentication
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        // The user canceled the sign-in
+        setState(() {
+          isLoading = false;
+        });
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Once signed in, return the FirebaseUser
+      await FirebaseAuth.instance.signInWithCredential(credential);
+    } catch (e) {
+      print('Error during Google Sign-In: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:task6_adv/models/category_data.dart';
+import 'package:task6_adv/widgets/my_chip_widget.dart';
 
 class CategoriesWidget extends StatefulWidget {
   const CategoriesWidget({super.key});
@@ -35,27 +36,20 @@ class _CategoriesWidgetState extends State<CategoriesWidget> {
           }
           var categories = List<CategoryData>.from(snapshot.data?.docs
                   .map(
-                    (e) => CategoryData.fromJson({'id': e.id, ...e.data()}),
+                    (e) =>
+                        CategoryData.fromJson({'id': e.id, ...e.data()}, null),
                   )
                   .toList() ??
               []);
 
           return ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: categories.length,
-            separatorBuilder: (context, index) => const SizedBox(
-              width: 10,
-            ),
-            itemBuilder: (context, index) => Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: const Color(0xffE0E0E0),
-                  borderRadius: BorderRadius.circular(40)),
-              child: Center(
-                child: Text(categories[index].name ?? ''),
-              ),
-            ),
-          );
+              scrollDirection: Axis.horizontal,
+              itemCount: categories.length,
+              separatorBuilder: (context, index) => const SizedBox(
+                    width: 10,
+                  ),
+              itemBuilder: (context, index) =>
+                  MyChipWidget(label: Text(categories[index].name ?? '')));
         },
       ),
     );

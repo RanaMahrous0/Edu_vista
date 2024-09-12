@@ -1,11 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:task6_adv/pages/course_page.dart';
+import 'package:task6_adv/pages/profile_page.dart';
+import 'package:task6_adv/pages/search_page.dart';
 import 'package:task6_adv/utility/color_utility.dart';
-import 'package:task6_adv/widgets/categories_widget.dart';
-import 'package:task6_adv/widgets/course_widget.dart';
+import 'package:task6_adv/widgets/app_bar_title_widget.dart';
+import 'package:task6_adv/widgets/homePage/home_content_widget.dart';
 import 'package:task6_adv/widgets/my_app_bar.dart';
 import 'package:task6_adv/widgets/my_label_text.dart';
-import 'package:task6_adv/widgets/my_label_widget.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'HomePage';
@@ -18,59 +22,106 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String? username;
+  String? profileImageUrl; // To store profile image URL
+  int selectedIndex = 0;
+
+  final List<Widget> pages = [
+    const HomeContentWidget(), // You can place your main home content here
+    const CoursePage(),
+    const SearchPage(),
+    const Center(child: Text('Chat Page')),
+    const ProfilePage(), // The profile page for the user
+  ];
 
   @override
   void initState() {
     super.initState();
-    getUserName();
+    getUserNameAndProfileImage();
   }
 
-  Future<void> getUserName() async {
+  // Fetch user data from Firestore
+  Future<void> getUserNameAndProfileImage() async {
     User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Fetch user data from Firestore
+      final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        setState(() {
+          username = capitalize(userDoc['name'] ?? 'User');
+          profileImageUrl = userDoc['profilePictureUrl'] ?? '';
+        });
+      }
+    }
+  }
+
+  void onItemTapped(int index) {
     setState(() {
-      username = capitalize(user?.displayName ?? 'User');
+      selectedIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(
-        height: 40,
-        title: titleAppBarWidget(),
-      ),
+      appBar: getAppBarForPage(selectedIndex),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                MyLabelWidget(onSeeAllClicked: () {}, label: 'Category'),
-                const SizedBox(
-                  height: 10,
-                ),
-                const CategoriesWidget(),
-                const SizedBox(
-                  height: 20,
-                ),
-                MyLabelWidget(
-                    onSeeAllClicked: () {}, label: 'Students Alse Search For'),
-                const CoursesWidget(rankValue: 'top_rated'),
-                const SizedBox(
-                  height: 20,
-                ),
-                MyLabelWidget(
-                    onSeeAllClicked: () {}, label: 'Top Courses in IT'),
-                const CoursesWidget(rankValue: 'top_rated'),
-                const SizedBox(
-                  height: 20,
-                ),
-                MyLabelWidget(onSeeAllClicked: () {}, label: 'Top Sellers'),
-                const CoursesWidget(rankValue: 'top_seller')
-              ],
+        child: pages[selectedIndex],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: ColorUtility.scaffoldBackground,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: selectedIndex,
+        onTap: onItemTapped,
+        selectedItemColor: ColorUtility.secondry,
+        unselectedItemColor: Colors.black,
+        items: [
+          const BottomNavigationBarItem(
+            icon: FaIcon(
+              FontAwesomeIcons.house,
+              size: 20,
             ),
+            label: '',
           ),
-        ),
+          const BottomNavigationBarItem(
+            icon: Icon(
+              Icons.import_contacts,
+              size: 20,
+            ),
+            label: '',
+          ),
+          const BottomNavigationBarItem(
+            icon: FaIcon(
+              FontAwesomeIcons.magnifyingGlass,
+              size: 20,
+            ),
+            label: '',
+          ),
+          const BottomNavigationBarItem(
+            icon: FaIcon(
+              FontAwesomeIcons.comment,
+              size: 20,
+            ),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: profileImageUrl != null && profileImageUrl!.isNotEmpty
+                ? CircleAvatar(
+                    radius: 12, // Adjust the radius as needed
+                    backgroundImage: NetworkImage(profileImageUrl!),
+                    backgroundColor: Colors.transparent,
+                  )
+                : const Icon(
+                    Icons.person,
+                    size: 20,
+                  ),
+            label: '',
+          ),
+        ],
       ),
     );
   }
@@ -79,9 +130,7 @@ class _HomePageState extends State<HomePage> {
     return Row(
       children: [
         const MyLabelText(fontSize: 20, text: 'Welcome'),
-        const SizedBox(
-          width: 4,
-        ),
+        const SizedBox(width: 4),
         MyLabelText(
           fontSize: 20,
           text: username ?? '',
@@ -96,5 +145,51 @@ class _HomePageState extends State<HomePage> {
       return '';
     }
     return s[0].toUpperCase() + s.substring(1);
+  }
+
+  PreferredSizeWidget? getAppBarForPage(int index) {
+    switch (index) {
+      case 0:
+        return MyAppBar(
+          height: 40,
+          title: titleAppBarWidget(),
+        );
+      case 1:
+        return const MyAppBar(
+          height: 40,
+          title: AppBarTitleWidget(title: 'Courses'),
+        );
+      case 2:
+        return const MyAppBar(
+          height: 40,
+          title: TextField(
+            decoration: InputDecoration(
+              hintText: 'Search..',
+              suffixIcon: Icon(Icons.search, color: Color(0xff505050)),
+            ),
+          ),
+        );
+      case 3:
+        return const MyAppBar(
+          height: 40,
+          title: Text(
+            'Chat',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+        );
+      case 4:
+        return const MyAppBar(
+          height: 40,
+          title: Text(
+            'Profile',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+        );
+      default:
+        return const MyAppBar(
+          height: 40,
+          title: Text('Welcome'),
+        );
+    }
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:task6_adv/pages/cart_page.dart';
+import 'package:task6_adv/pages/home_page.dart';
 import 'package:task6_adv/utility/color_utility.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -9,10 +11,19 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, HomePage.id);
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
         backgroundColor: ColorUtility.scaffoldBackground,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, CartPage.id);
+            },
             icon: const Icon(Icons.add_shopping_cart),
           ),
           const SizedBox(

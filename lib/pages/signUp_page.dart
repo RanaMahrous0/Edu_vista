@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task6_adv/cubit/auth_cubit.dart';
+import 'package:task6_adv/Cubits/auth/cubit/auth_cubit.dart';
 import 'package:task6_adv/widgets/auth/auth_template_widget.dart';
 import 'package:task6_adv/widgets/my_textField_widget.dart';
 

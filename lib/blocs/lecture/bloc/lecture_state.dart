@@ -20,6 +20,12 @@ class LectureLoaded extends LectureState {
   @override
   List<Object?> get props => [lectures];
 }
+class LectureSelected extends LectureState {
+  final Lecture lecture;
+
+  const LectureSelected({required this.lecture});
+}
+
 
 class LectureError extends LectureState {
   final String message;

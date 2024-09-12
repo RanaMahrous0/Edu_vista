@@ -6,10 +6,11 @@ import 'package:task6_adv/blocs/lecture/bloc/lecture_bloc.dart';
 import 'package:task6_adv/blocs/lecture/bloc/lecture_event.dart';
 import 'package:task6_adv/blocs/lecture/bloc/lecture_state.dart';
 import 'package:task6_adv/pages/home_page.dart';
-import 'package:task6_adv/widgets/course_details_widget.dart';
+import 'package:task6_adv/utility/color_utility.dart';
+import 'package:task6_adv/widgets/courseDetailsPage/course_details_widget.dart';
 
 class CourseDetailsPage extends StatefulWidget {
-  static const String id = 'LoginPage';
+  static const String id = 'CourseDetailsPage';
   final String courseId;
   const CourseDetailsPage({required this.courseId, super.key});
 
@@ -27,8 +28,8 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
+            Icons.arrow_back_ios,
+            color: ColorUtility.main,
           ),
           onPressed: () {
             Navigator.pushReplacementNamed(context, HomePage.id);

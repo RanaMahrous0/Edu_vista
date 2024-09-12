@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:task6_adv/pages/home_page.dart';
@@ -65,6 +66,15 @@ class AuthCubit extends Cubit<AuthState> {
         email: emailController.text,
         password: passwordController.text,
       );
+      User? user = credentials.user;
+
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'name': nameController.text.trim(),
+          'email': user.email,
+          'createdAt': Timestamp.now(),
+        });
+      }
       if (credentials.user != null) {
         credentials.user!.updateDisplayName(nameController.text);
 

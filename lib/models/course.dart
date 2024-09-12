@@ -16,10 +16,20 @@ class Course {
   int? totatlHours;
   String? rank;
   DateTime? createdDate;
-
+  bool isExpanded = false;
+  Course({
+    required this.id,
+    required this.title,
+    required this.image,
+    required this.instructor,
+    required this.rating,
+    required this.price,
+    this.isExpanded = false,
+  });
   Course.fromJson(Map<String, dynamic> data) {
     title = data['title'];
     image = data['image'];
+
     id = data['id'];
     currency = data['currency'];
     hasCertificate = data['has_certificate '];
@@ -35,10 +45,48 @@ class Course {
         : null;
     totatlHours = data['total_hours'];
     category = data['category'] != null
-        ? CategoryData.fromJson(data['category'])
+        ? CategoryData.fromJson(data['category'], null)
         : null;
     instructor = data['instructor'] != null
         ? Instructor.fromJson(data['instructor'])
         : null;
+    isExpanded = data['isExpanded'] ?? false;
+  }
+
+  Course copyWith({
+    String? id,
+    String? title,
+    String? image,
+    Instructor? instructor,
+    double? rating,
+    double? price,
+    bool? isExpanded,
+  }) {
+    return Course(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      image: image ?? this.image,
+      instructor: instructor ?? this.instructor,
+      rating: rating ?? this.rating,
+      price: price ?? this.price,
+      isExpanded: isExpanded ?? this.isExpanded,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'image': image,
+      'id': id,
+      'currency': currency,
+      'has_certificate ': hasCertificate,
+      'price': price,
+      'rating': rating,
+      'rank': rank,
+      'created_date': createdDate,
+      'total_hours': totatlHours,
+      'category': category?.toJson(),
+      'instructor': instructor?.toJson(),
+    };
   }
 }

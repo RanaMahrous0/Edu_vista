@@ -10,7 +10,7 @@ class Lecture {
   Lecture.fromJson(Map<String, dynamic> data) {
     id = data['id'];
     description = data['description'];
-    lectureUrl = data['lecture_url'] ?? '';
+    lectureUrl = data['lectureUrl'] ?? '';
     duration = int.tryParse(data['duration'].toString());
 
     title = data['title'];
@@ -22,7 +22,7 @@ class Lecture {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['description'] = description;
-    data['lecture_url'] = lectureUrl;
+    data['lectureUrl'] = lectureUrl;
     data['duration'] = duration;
     data['title'] = title;
     data['sort'] = sort;
