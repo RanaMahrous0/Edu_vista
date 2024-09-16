@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:task6_adv/pages/categories_page.dart';
-import 'package:task6_adv/widgets/categories_widget.dart';
+import 'package:task6_adv/pages/see_all_courses_page.dart';
+import 'package:task6_adv/widgets/courseDetailsPage/categories_widget.dart';
 import 'package:task6_adv/widgets/homePage/course_widget.dart';
 import 'package:task6_adv/widgets/homePage/viewed_course_widget.dart';
 import 'package:task6_adv/widgets/my_label_widget.dart';
@@ -28,19 +29,47 @@ class HomeContentWidget extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            MyLabelWidget(onSeeAllClicked: () {}, label: 'Because You Viewed'),
-            const ViewedCoursesWidget(),
-            
+            MyLabelWidget(
+                onSeeAllClicked: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SeeAllCoursesPage(
+                                filiteredBy: 'Because you viewed',
+                              )));
+                },
+                label: 'Because You Viewed'),
+            const ViewedCoursesWidget(
+              seeAll: false,
+            ),
             const SizedBox(
               height: 20,
             ),
-            MyLabelWidget(onSeeAllClicked: () {}, label: 'Top Courses in IT'),
-            const CoursesWidget(rankValue: 'top_rated'),
+            MyLabelWidget(
+                onSeeAllClicked: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SeeAllCoursesPage(
+                                filiteredBy: 'top_rated',
+                              )));
+                },
+                label: 'Top Courses in IT'),
+            const CoursesWidget(seeAll: false, rankValue: 'top_rated'),
             const SizedBox(
               height: 20,
             ),
-            MyLabelWidget(onSeeAllClicked: () {}, label: 'Top Sellers'),
-            const CoursesWidget(rankValue: 'top_seller')
+            MyLabelWidget(
+                onSeeAllClicked: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SeeAllCoursesPage(
+                                filiteredBy: 'top_seller',
+                              )));
+                },
+                label: 'Top Sellers'),
+            const CoursesWidget(seeAll: false, rankValue: 'top_seller')
           ],
         ),
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:task6_adv/widgets/categories_widget.dart';
+import 'package:task6_adv/widgets/courseDetailsPage/categories_widget.dart';
 import 'package:task6_adv/widgets/my_label_text.dart';
 
 class SearchPage extends StatefulWidget {

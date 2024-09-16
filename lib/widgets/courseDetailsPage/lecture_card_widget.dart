@@ -1,8 +1,8 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:task6_adv/utility/color_utility.dart';
 
@@ -11,21 +11,22 @@ class LectureCard extends StatefulWidget {
   final String description;
   final String duration;
   final String lectureUrl;
-  final String courseId; // Add courseId to associate with the course
-  final bool isSelected; // Add isSelected to handle color change
+  final String courseId;
+  final bool isSelected;
   final void Function() onTap;
   final bool isDownloaded;
 
-  const LectureCard(
-      {super.key,
-      required this.title,
-      required this.description,
-      required this.duration,
-      required this.onTap,
-      required this.isSelected,
-      required this.lectureUrl,
-      required this.isDownloaded,
-      required this.courseId}); // Include courseId
+  const LectureCard({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.duration,
+    required this.onTap,
+    required this.isSelected,
+    required this.lectureUrl,
+    required this.isDownloaded,
+    required this.courseId,
+  });
 
   @override
   State<LectureCard> createState() => _LectureCardState();
@@ -33,51 +34,59 @@ class LectureCard extends StatefulWidget {
 
 class _LectureCardState extends State<LectureCard> {
   Future<void> _downloadLecture() async {
-    // Check for storage permission
-    PermissionStatus status = await Permission.storage.status;
-    if (status.isGranted) {
-      try {
-        // Get the directory for storing the file
-        final directory = await getApplicationDocumentsDirectory();
-        final filePath = '${directory.path}/${widget.title}.mp4';
+    try {
+      // Check if lecture already exists in Firestore
+      final existingDocs = await FirebaseFirestore.instance
+          .collection('downloads')
+          .where('title', isEqualTo: widget.title)
+          .where('courseId', isEqualTo: widget.courseId)
+          .get();
 
-        // Download the file from Firebase Storage
-        final ref = FirebaseStorage.instance.refFromURL(widget.lectureUrl);
-        await ref.writeToFile(File(filePath)).whenComplete(() async {
-          // Save lecture info to Firestore under 'downloads' collection
-          await FirebaseFirestore.instance.collection('downloads').add({
-            'title': widget.title,
-            'description': widget.description,
-            'duration': widget.duration,
-            'lectureUrl': widget.lectureUrl,
-            'filePath': filePath,
-            'courseId': widget.courseId,
-            'timestamp': FieldValue.serverTimestamp(),
-          });
+      if (existingDocs.docs.isNotEmpty) {
+        // Document already exists, so do not proceed with download and upload
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Lecture already downloaded.')),
+        );
+        return;
+      }
 
-          // Update the lecture info in the corresponding course's 'lectures' subcollection
+      // Download the file from the provided URL
+      final response = await http.get(Uri.parse(widget.lectureUrl));
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Download complete: $filePath')),
-          );
+      if (response.statusCode == 200) {
+        // Get the file data
+        final Uint8List fileData = response.bodyBytes;
+
+        // Define the Firebase Storage path
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('lectures/${widget.title}.mp4');
+
+        // Upload the file to Firebase Storage
+        await storageRef.putData(fileData);
+
+        // Save lecture info to Firestore under 'downloads' collection
+        await FirebaseFirestore.instance.collection('downloads').add({
+          'title': widget.title,
+          'description': widget.description,
+          'duration': widget.duration,
+          'lectureUrl': widget.lectureUrl,
+          'courseId': widget.courseId,
+          'timestamp': FieldValue.serverTimestamp(),
+          'firebaseStoragePath': storageRef.fullPath,
+          'userId': FirebaseAuth.instance.currentUser
         });
-      } catch (e) {
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error downloading file: $e')),
+          SnackBar(content: Text('Upload complete: ${storageRef.fullPath}')),
         );
-      }
-    } else if (status.isDenied) {
-      // Request permission
-      if (await Permission.storage.request().isGranted) {
-        _downloadLecture(); // Retry if permission is granted
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Permission denied')),
-        );
+        throw Exception('Failed to download file: ${response.statusCode}');
       }
-    } else {
+    } catch (e) {
+      print('Error uploading file: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permission not determined')),
+        SnackBar(content: Text('Error uploading file: $e')),
       );
     }
   }
@@ -115,7 +124,7 @@ class _LectureCardState extends State<LectureCard> {
                       : IconButton(
                           onPressed: _downloadLecture,
                           icon: const Icon(Icons.download_rounded),
-                        )
+                        ),
                 ],
               ),
               const SizedBox(height: 8),

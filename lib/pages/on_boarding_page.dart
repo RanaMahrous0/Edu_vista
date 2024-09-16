@@ -6,7 +6,7 @@ import 'package:task6_adv/utility/color_utility.dart';
 import 'package:task6_adv/utility/image_utility.dart';
 import 'package:task6_adv/widgets/my_elevated_button.dart';
 
-import '../widgets/on_boarding_item_widget.dart';
+import '../widgets/onBoarding/on_boarding_item_widget.dart';
 
 class OnBoardingPage extends StatefulWidget {
   static const String id = 'OnBoardingPage';

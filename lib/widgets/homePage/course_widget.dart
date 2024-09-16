@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth for user information
+import 'package:firebase_auth/firebase_auth.dart'; 
 import 'package:task6_adv/Cubits/cart/cubit/cart_state.dart';
 import 'package:task6_adv/models/course.dart';
-import 'package:task6_adv/Cubits/cart/cubit/cart_cubit.dart'; // Import the CartCubit
+import 'package:task6_adv/Cubits/cart/cubit/cart_cubit.dart'; 
 import 'package:task6_adv/pages/course_details_page.dart';
 import 'package:task6_adv/utility/color_utility.dart';
 import 'package:task6_adv/widgets/myTextButton.dart';
@@ -13,7 +13,9 @@ import 'package:task6_adv/widgets/my_star_icon.dart';
 
 class CoursesWidget extends StatefulWidget {
   final String rankValue;
-  const CoursesWidget({required this.rankValue, super.key});
+  final bool seeAll;
+  const CoursesWidget(
+      {required this.seeAll, required this.rankValue, super.key});
 
   @override
   State<CoursesWidget> createState() => _CoursesWidgetState();
@@ -74,7 +76,12 @@ class _CoursesWidgetState extends State<CoursesWidget> {
               shrinkWrap: true,
               crossAxisCount: 2,
               childAspectRatio: 0.7,
-              children: List.generate(courses.length, (index) {
+              children: List.generate(
+                  widget.seeAll
+                      ? courses.length
+                      : courses.length < 2
+                          ? courses.length
+                          : 2, (index) {
                 bool isInCart = cartState.cartItems
                     .any((item) => item.id == courses[index].id);
 

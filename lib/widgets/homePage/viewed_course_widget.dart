@@ -12,7 +12,8 @@ import 'package:task6_adv/widgets/my_label_text.dart';
 import 'package:task6_adv/widgets/my_star_icon.dart';
 
 class ViewedCoursesWidget extends StatefulWidget {
-  const ViewedCoursesWidget({super.key});
+  final bool seeAll;
+  const ViewedCoursesWidget({required this.seeAll, super.key});
 
   @override
   State<ViewedCoursesWidget> createState() => _ViewedCoursesWidgetState();
@@ -108,7 +109,7 @@ class _ViewedCoursesWidgetState extends State<ViewedCoursesWidget> {
                 childAspectRatio: 0.7,
               ),
               shrinkWrap: true,
-              itemCount: courses.length,
+              itemCount: widget.seeAll ? courses.length : 2,
               itemBuilder: (context, index) {
                 final course = courses[index];
                 final isInCart =

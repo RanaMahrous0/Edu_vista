@@ -1,12 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:task6_adv/models/course.dart';
 import 'package:task6_adv/models/lecture.dart';
 import 'package:task6_adv/utility/color_utility.dart';
 import 'package:task6_adv/widgets/courseDetailsPage/build_certificate_widget.dart';
 import 'package:task6_adv/widgets/courseDetailsPage/build_instructor_widget.dart';
-import 'package:task6_adv/widgets/lecture_card_widget.dart';
+import 'package:task6_adv/widgets/courseDetailsPage/lecture_card_widget.dart';
 import 'package:task6_adv/widgets/my_label_text.dart';
-import 'package:task6_adv/widgets/video_box_widget.dart';
+import 'package:task6_adv/widgets/courseDetailsPage/video_box_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CourseDetailsWidget extends StatefulWidget {
   final Course courseData;
@@ -25,6 +27,30 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
   bool showInstructorInfo = false;
   bool showCourseResources = false;
   bool showShareCourse = false;
+  List<String> downloadedLectureIds = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDownloadedLectures();
+  }
+
+  Future<void> _fetchDownloadedLectures() async {
+    try {
+      final userId = FirebaseAuth.instance.currentUser; // Replace with actual user ID
+      final snapshot = await FirebaseFirestore.instance
+          .collection('downloads')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      setState(() {
+        downloadedLectureIds =
+            snapshot.docs.map((doc) => doc['lectureId'] as String).toList();
+      });
+    } catch (e) {
+      print('Error fetching downloaded lectures: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +158,7 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
             duration: lecture.duration.toString(),
             lectureUrl: lecture.lectureUrl ?? 'No Url',
             courseId: widget.courseData.id ?? '',
-            isDownloaded: false,
+            isDownloaded: downloadedLectureIds.contains(lecture.id ?? ''),
           );
         },
       ),
@@ -140,6 +166,12 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
   }
 
   Widget downloadOptionWidget() {
+    final downloadedLectures = widget.lectures
+        .where(
+          (lecture) => downloadedLectureIds.contains(lecture.id ?? ''),
+        )
+        .toList();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 17.0),
       child: GridView.builder(
@@ -150,17 +182,18 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
           crossAxisSpacing: 17,
           mainAxisSpacing: 17,
         ),
-        itemCount: widget.lectures.length,
+        itemCount: downloadedLectures.length,
         itemBuilder: (context, index) {
-          var lecture = widget.lectures[index];
+          var lecture = downloadedLectures[index];
           return LectureCard(
             onTap: () {
               setState(() {
-                selectedLectureIndex = index;
+                selectedLectureIndex = widget.lectures.indexOf(lecture);
               });
               print(widget.lectures[selectedLectureIndex!].lectureUrl);
             },
-            isSelected: selectedLectureIndex == index,
+            isSelected:
+                selectedLectureIndex == widget.lectures.indexOf(lecture),
             title: lecture.title ?? 'No Title',
             description: lecture.description ?? 'No Description',
             duration: lecture.duration.toString(),
@@ -235,17 +268,17 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
           color: ColorUtility.whiteGray,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Course Resources',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text('Resource details here...'),
           ],
         ),
@@ -270,17 +303,17 @@ class _CourseDetailsWidgetState extends State<CourseDetailsWidget> {
           color: ColorUtility.whiteGray,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Share this Course',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text('Share details or options here...'),
           ],
         ),
